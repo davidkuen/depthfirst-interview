@@ -2,6 +2,8 @@
 
 import { useSearchParams } from "next/navigation";
 import RepoSwitcher from "./RepoSwitcher";
+import useComments from "@/api/useComments";
+import DailyChart from "@/components/DailyChart";
 
 // in a real app, we would retrieve these from the current project/org or another internal api
 const REPOS = [
@@ -10,9 +12,23 @@ const REPOS = [
   "DepthFirst/mobile-ios",
 ];
 
+const LoadingChart = () => {
+  return <div className="h-48 flex-grow-1 bg-foreground/10 animate-pulse" />;
+};
+
+const ChartContainer = ({ children }: { children: React.ReactNode }) => {
+  return (
+    <div className="border border-foreground/10 px-3 py-2 flex-grow-1 h-48">
+      {children}
+    </div>
+  );
+};
+
 export default function CommentsList() {
   const searchParams = useSearchParams();
   const repo = searchParams.get("repo");
+
+  const commentsResponse = useComments({ repoName: repo ?? "" });
 
   return (
     <div className="flex flex-col">
@@ -21,6 +37,65 @@ export default function CommentsList() {
         <RepoSwitcher selectedRepo={repo ?? ""} repos={REPOS} />
       </div>
       <div className="flex flex-col gap-4 p-4">
+        {commentsResponse.isLoading ? (
+          <div className="flex flex-col gap-4">
+            <LoadingChart />
+            <div className="flex gap-4">
+              <LoadingChart />
+              <LoadingChart />
+              <LoadingChart />
+            </div>
+          </div>
+        ) : (
+          <div className="flex flex-col gap-4">
+            <ChartContainer>
+              <DailyChart
+                title="Total Issues"
+                data={commentsResponse.data.stats.total.map((stat) => ({
+                  date: stat.date,
+                  value: stat.count,
+                }))}
+                className="h-full"
+                gapSize="large"
+              />
+            </ChartContainer>
+            <div className="flex gap-4">
+              <ChartContainer>
+                <DailyChart
+                  title="Open Issues"
+                  data={commentsResponse.data.stats.open.map((stat) => ({
+                    date: stat.date,
+                    value: stat.count,
+                  }))}
+                  className="h-full"
+                  color="neutral"
+                />
+              </ChartContainer>
+              <ChartContainer>
+                <DailyChart
+                  title="Accepted Issues"
+                  data={commentsResponse.data.stats.accepted.map((stat) => ({
+                    date: stat.date,
+                    value: stat.count,
+                  }))}
+                  className="h-full"
+                  color="green"
+                />
+              </ChartContainer>
+              <ChartContainer>
+                <DailyChart
+                  title="Rejected Issues"
+                  data={commentsResponse.data.stats.rejected.map((stat) => ({
+                    date: stat.date,
+                    value: stat.count,
+                  }))}
+                  className="h-full"
+                  color="red"
+                />
+              </ChartContainer>
+            </div>
+          </div>
+        )}
         <p>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce velit
           velit, congue vel eros at, accumsan faucibus nunc. Sed augue elit,

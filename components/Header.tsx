@@ -12,7 +12,7 @@ export const Header = () => {
           height={26}
         />
         <div
-          className="font-mono text-md text-right text-white"
+          className="font-mono text-md text-right text-purple-500"
           style={{ marginTop: "5px" }}
         >
           dashboard
