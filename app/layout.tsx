@@ -32,7 +32,7 @@ export default function RootLayout({
       >
         <Header />
         <ContentContainer>
-          <main className="bg-foreground/10 p-4">{children}</main>
+          <main className="bg-[var(--content-background)]">{children}</main>
         </ContentContainer>
       </body>
     </html>
