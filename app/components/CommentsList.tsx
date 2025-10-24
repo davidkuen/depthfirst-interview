@@ -1,9 +1,82 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import RepoSwitcher from "./RepoSwitcher";
-import useComments from "@/api/useComments";
+import useComments, { CommentSchema } from "@/api/useComments";
 import DailyChart from "@/components/DailyChart";
+import Link from "next/link";
+import SelectMenu from "@/components/SelectMenu";
+
+const daysAgo = (date: Date): string => {
+  const now = new Date();
+  // Get rid of time for both dates
+  const utc1 = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  const utc2 = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+  const daysDiff = Math.floor((utc1 - utc2) / (1000 * 60 * 60 * 24));
+  if (daysDiff < 0) return "in the future";
+  if (daysDiff === 0) return "today";
+  if (daysDiff === 1) return "yesterday";
+  return `${daysDiff} days ago`;
+};
+
+const StatusBadge = ({ status }: { status: CommentSchema["status"] }) => {
+  if (status === "accepted") {
+    return (
+      <div className="font-mono text-green-600 text-xl" title="Accepted">
+        ✓
+      </div>
+    );
+  }
+  if (status === "rejected") {
+    return (
+      <div className="font-mono text-red-600 text-xl" title="Rejected">
+        ✗
+      </div>
+    );
+  }
+  return null;
+  //   return (
+  //     <div className={`rounded-full px-2 text-xs bg-green-600/50`}>{status}</div>
+  //   );
+};
+
+const CommentLoading = () => {
+  return (
+    <div className="flex gap-2 items-center hover:bg-foreground/10 py-2 px-4 -mx-4">
+      <h3
+        className={`text-lg font-bold animate-pulse bg-foreground/10 px-2 w-3/4`}
+      >
+        &nbsp;
+      </h3>
+    </div>
+  );
+};
+
+const CommentItem = ({ comment }: { comment: CommentSchema }) => {
+  const done = comment.status === "accepted" || comment.status === "rejected";
+  return (
+    <Link
+      key={comment.id}
+      href="#"
+      className={`flex gap-2 items-center justify-between hover:bg-foreground/10 py-2 px-4 -mx-4 ${
+        done ? "opacity-50" : ""
+      }`}
+    >
+      <div className="flex gap-2 items-center">
+        <h3 className={`text-lg font-bold ${done ? "line-through" : ""}`}>
+          {comment.title}
+        </h3>
+        <p className="text-sm text-foreground/50">
+          {daysAgo(comment.createdAt)}
+        </p>
+        <div className="rounded-full bg-foreground/10 px-2 text-xs font-mono">
+          {comment.repoName}
+        </div>
+      </div>
+      <StatusBadge status={comment.status} />
+    </Link>
+  );
+};
 
 // in a real app, we would retrieve these from the current project/org or another internal api
 const REPOS = [
@@ -25,8 +98,10 @@ const ChartContainer = ({ children }: { children: React.ReactNode }) => {
 };
 
 export default function CommentsList() {
+  const router = useRouter();
   const searchParams = useSearchParams();
   const repo = searchParams.get("repo");
+  const status = searchParams.get("status");
 
   const commentsResponse = useComments({ repoName: repo ?? "" });
 
@@ -96,58 +171,61 @@ export default function CommentsList() {
             </div>
           </div>
         )}
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce velit
-          velit, congue vel eros at, accumsan faucibus nunc. Sed augue elit,
-          dapibus et porttitor a, ullamcorper et ex. Duis vitae nisl vitae
-          turpis hendrerit sollicitudin. In nec ipsum nec dui placerat aliquam.
-          Duis odio leo, varius id ultricies at, congue eu felis. Mauris et leo
-          sodales nulla fringilla blandit. Quisque interdum mauris at elit
-          ultricies, ac pellentesque turpis sodales. Quisque purus augue,
-          pulvinar ut tempus quis, mollis nec urna. Duis eu tortor ex.
-          Suspendisse in ex in ex dictum euismod. Suspendisse potenti. Quisque a
-          suscipit libero.
-        </p>
-        <p>
-          Vestibulum viverra, tellus id euismod semper, enim sapien fermentum
-          tortor, et euismod leo elit vel eros. Cras eget fermentum erat. In
-          tincidunt nulla mi, a commodo nisi rhoncus sodales. Proin sagittis non
-          massa ut posuere. Donec in erat non urna dictum mollis a eget eros.
-          Vestibulum orci risus, accumsan vel hendrerit quis, fermentum a est.
-          Sed fringilla ex non tristique congue. Donec non diam malesuada,
-          malesuada eros nec, viverra magna.
-        </p>
-        <p>
-          Morbi suscipit tincidunt nisi, eu aliquam tellus malesuada vel. Donec
-          viverra lacus et mauris varius, sit amet placerat diam varius.
-          Praesent malesuada ac ex mattis molestie. Ut et auctor dolor. Mauris
-          commodo elit eu sem aliquam varius. Aenean laoreet id magna ac
-          pulvinar. Phasellus ac lorem vitae diam tincidunt vulputate facilisis
-          nec leo.
-        </p>
-        <p>
-          Fusce interdum, elit ut ultricies tempus, augue diam finibus elit, sit
-          amet rutrum nunc ligula eu turpis. Aliquam dapibus est sapien, eget
-          fringilla eros tristique sed. Phasellus quis neque auctor, laoreet
-          erat a, vulputate lacus. Donec a elit sodales orci viverra
-          sollicitudin. Sed eu odio ac odio finibus ornare. Donec sed nulla
-          imperdiet, pretium arcu et, aliquet eros. Fusce vulputate condimentum
-          posuere.
-        </p>
-        <p>
-          In ut nulla eget tellus bibendum bibendum. Sed tortor sem, fermentum
-          et posuere eu, sagittis non nunc. Donec vehicula ullamcorper lectus
-          non dignissim. Nunc fermentum, nunc sed porttitor rutrum, augue ante
-          dapibus nibh, quis lacinia metus magna sit amet leo. Duis at magna
-          augue. Class aptent taciti sociosqu ad litora torquent per conubia
-          nostra, per inceptos himenaeos. Cras aliquam nibh eget eros ultricies,
-          non mattis tellus commodo. Pellentesque ut metus a ex blandit
-          tincidunt. Vivamus id dui diam. Maecenas hendrerit, risus eu luctus
-          aliquam, ante ipsum pharetra ex, at porttitor ipsum nisi id elit. Cras
-          maximus nunc non diam aliquet, eu maximus nisl sollicitudin. Proin
-          quis sollicitudin augue. Etiam quis felis elit. Donec enim turpis,
-          congue in feugiat at, porttitor sed tellus.
-        </p>
+        <div className="flex justify-between items-center">
+          <h2 className="text-lg font-bold font-mono">Recent Issues</h2>
+          <div className="flex gap-2">
+            <SelectMenu
+              before="Status"
+              options={[
+                { label: "All", value: "" },
+                { label: "Open", value: "open" },
+                { label: "Accepted", value: "accepted" },
+                { label: "Rejected", value: "rejected" },
+              ]}
+              selectedOption={status ?? ""}
+              onChange={(value) => {
+                router.push(
+                  `/?repo=${repo || ""}&status=${encodeURIComponent(value)}`
+                );
+              }}
+            />
+            <SelectMenu
+              disabled // this is nonfunctional
+              before="Date"
+              options={[
+                { label: "Past year", value: "past_year" },
+                { label: "Past month", value: "past_month" },
+                { label: "Past week", value: "past_week" },
+                { label: "Past day", value: "past_day" },
+              ]}
+              selectedOption={""}
+              onChange={() => {}}
+            />
+          </div>
+        </div>
+        <div className="flex flex-col">
+          {commentsResponse.isLoading ? (
+            <div className="flex flex-col">
+              <CommentLoading />
+              <CommentLoading />
+              <CommentLoading />
+              <CommentLoading />
+              <CommentLoading />
+            </div>
+          ) : (
+            commentsResponse.data.comments
+              .filter((comment) => {
+                if (!status) return true;
+                if (status === "open") return comment.status === "open";
+                if (status === "accepted") return comment.status === "accepted";
+                if (status === "rejected") return comment.status === "rejected";
+                return false;
+              })
+              .map((comment) => (
+                <CommentItem key={comment.id} comment={comment} />
+              ))
+          )}
+        </div>
       </div>
     </div>
   );

@@ -67,19 +67,21 @@ import SAMPLE_COMMENTS_ALL from "../sample_responses/comments_all.json";
 // The following schemas are what our internal api returns. The data is derived/transformed from the github api response on the server side.
 // We're faking the data for the purposes of this demo.
 
-type CommentSchema = {
+export type CommentSchema = {
   id: string;
   createdAt: Date;
   prName: string;
-  status: "open" | "closed";
+  status: "open" | "accepted" | "rejected";
+  repoName: string;
+  title: string;
 };
 
-type StatsBucket = {
+export type StatsBucket = {
   date: Date;
   count: number;
 };
 
-type CommentsResponse = {
+export type CommentsResponse = {
   comments: CommentSchema[];
   stats: {
     total: StatsBucket[];
@@ -98,7 +100,9 @@ const useComments = ({ repoName }: { repoName: string }) => {
           id: comment.id,
           createdAt: new Date(comment.createdAt),
           prName: comment.prName,
-          status: comment.status as "open" | "closed",
+          status: comment.status as "open" | "accepted" | "rejected",
+          repoName: comment.repoName,
+          title: comment.title,
         })),
         stats: {
           total: SAMPLE_COMMENTS_ALL.stats.total.map((stat) => ({
