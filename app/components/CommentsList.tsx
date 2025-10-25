@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import RepoSwitcher from "./RepoSwitcher";
-import useComments, { CommentSchema } from "@/api/useComments";
+import useComments, { CommentPreviewSchema } from "@/api/useComments";
 import DailyChart from "@/components/DailyChart";
 import Link from "next/link";
 import SelectMenu from "@/components/SelectMenu";
@@ -19,7 +19,11 @@ const daysAgo = (date: Date): string => {
   return `${daysDiff} days ago`;
 };
 
-const StatusBadge = ({ status }: { status: CommentSchema["status"] }) => {
+const StatusBadge = ({
+  status,
+}: {
+  status: CommentPreviewSchema["status"];
+}) => {
   if (status === "accepted") {
     return (
       <div className="font-mono text-green-600 text-xl" title="Accepted">
@@ -52,12 +56,12 @@ const CommentLoading = () => {
   );
 };
 
-const CommentItem = ({ comment }: { comment: CommentSchema }) => {
+const CommentItem = ({ comment }: { comment: CommentPreviewSchema }) => {
   const done = comment.status === "accepted" || comment.status === "rejected";
   return (
     <Link
       key={comment.id}
-      href="#"
+      href={`/${comment.id}`}
       className={`flex gap-2 items-center justify-between hover:bg-foreground/10 py-2 px-4 -mx-4 ${
         done ? "opacity-50" : ""
       }`}
@@ -69,7 +73,7 @@ const CommentItem = ({ comment }: { comment: CommentSchema }) => {
         <p className="text-sm text-foreground/50">
           {daysAgo(comment.createdAt)}
         </p>
-        <div className="rounded-full bg-foreground/10 px-2 text-xs font-mono">
+        <div className="bg-foreground/10 px-1 text-xs font-mono">
           {comment.repoName}
         </div>
       </div>
@@ -89,9 +93,17 @@ const LoadingChart = () => {
   return <div className="h-48 flex-grow-1 bg-foreground/10 animate-pulse" />;
 };
 
-const ChartContainer = ({ children }: { children: React.ReactNode }) => {
+const ChartContainer = ({
+  children,
+  className = "",
+}: {
+  children: React.ReactNode;
+  className?: string;
+}) => {
   return (
-    <div className="border border-foreground/10 px-3 py-2 flex-grow-1 h-48">
+    <div
+      className={`border border-foreground/10 px-3 py-2 flex-grow-1 h-48 ${className}`}
+    >
       {children}
     </div>
   );
@@ -135,7 +147,7 @@ export default function CommentsList() {
               />
             </ChartContainer>
             <div className="flex gap-4">
-              <ChartContainer>
+              <ChartContainer className="w-1/3">
                 <DailyChart
                   title="Open Issues"
                   data={commentsResponse.data.stats.open.map((stat) => ({
@@ -146,7 +158,7 @@ export default function CommentsList() {
                   color="neutral"
                 />
               </ChartContainer>
-              <ChartContainer>
+              <ChartContainer className="w-1/3">
                 <DailyChart
                   title="Accepted Issues"
                   data={commentsResponse.data.stats.accepted.map((stat) => ({
@@ -157,7 +169,7 @@ export default function CommentsList() {
                   color="green"
                 />
               </ChartContainer>
-              <ChartContainer>
+              <ChartContainer className="w-1/3">
                 <DailyChart
                   title="Rejected Issues"
                   data={commentsResponse.data.stats.rejected.map((stat) => ({

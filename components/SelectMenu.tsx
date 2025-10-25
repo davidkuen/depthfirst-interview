@@ -19,7 +19,7 @@ export const SelectMenu = ({
   disabled?: boolean;
 }) => {
   return (
-    <label className="text-foreground border border-foreground/10 rounded-full px-2 flex items-center gap-2">
+    <label className="text-foreground border border-foreground/10 px-2 flex items-center gap-2">
       {before ? (
         <span className="text-foreground/50 font-mono">{before}</span>
       ) : null}

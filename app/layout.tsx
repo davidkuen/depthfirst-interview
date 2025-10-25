@@ -4,6 +4,7 @@ import { Header } from "@/components/Header";
 
 import "./globals.css";
 import { ContentContainer } from "@/components/Layout";
+import CommentsList from "./components/CommentsList";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -32,7 +33,10 @@ export default function RootLayout({
       >
         <Header />
         <ContentContainer>
-          <main className="bg-[var(--content-background)]">{children}</main>
+          <main className="bg-[var(--content-background)]">
+            <CommentsList />
+          </main>
+          {children}
         </ContentContainer>
       </body>
     </html>

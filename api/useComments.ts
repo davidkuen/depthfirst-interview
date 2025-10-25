@@ -1,5 +1,6 @@
 import useFakeGETApi from "./useFakeGETApi";
 import SAMPLE_COMMENTS_ALL from "../sample_responses/comments_all.json";
+import React from "react";
 
 // const SAMPLE_COMMENTS = [
 //   {
@@ -67,7 +68,7 @@ import SAMPLE_COMMENTS_ALL from "../sample_responses/comments_all.json";
 // The following schemas are what our internal api returns. The data is derived/transformed from the github api response on the server side.
 // We're faking the data for the purposes of this demo.
 
-export type CommentSchema = {
+export type CommentPreviewSchema = {
   id: string;
   createdAt: Date;
   prName: string;
@@ -82,7 +83,7 @@ export type StatsBucket = {
 };
 
 export type CommentsResponse = {
-  comments: CommentSchema[];
+  comments: CommentPreviewSchema[];
   stats: {
     total: StatsBucket[];
     open: StatsBucket[];
@@ -91,8 +92,52 @@ export type CommentsResponse = {
   };
 };
 
+const generateFakeStats = () => {
+  return [
+    {
+      date: new Date("2025-05-30T00:00:00.000Z"),
+      count: Math.floor(Math.random() * 100),
+    },
+    {
+      date: new Date("2025-05-31T00:00:00.000Z"),
+      count: Math.floor(Math.random() * 100),
+    },
+    {
+      date: new Date("2025-06-01T00:00:00.000Z"),
+      count: Math.floor(Math.random() * 100),
+    },
+    {
+      date: new Date("2025-06-02T00:00:00.000Z"),
+      count: Math.floor(Math.random() * 100),
+    },
+    {
+      date: new Date("2025-06-03T00:00:00.000Z"),
+      count: Math.floor(Math.random() * 100),
+    },
+    {
+      date: new Date("2025-06-04T00:00:00.000Z"),
+      count: Math.floor(Math.random() * 100),
+    },
+    {
+      date: new Date("2025-06-05T00:00:00.000Z"),
+      count: Math.floor(Math.random() * 100),
+    },
+  ];
+};
+
 const useComments = ({ repoName }: { repoName: string }) => {
   let response: CommentsResponse;
+
+  const fakeStats = React.useMemo(
+    () => ({
+      total: generateFakeStats(),
+      open: generateFakeStats(),
+      accepted: generateFakeStats(),
+      rejected: generateFakeStats(),
+    }),
+    [repoName]
+  );
+
   switch (repoName) {
     case "":
       response = {
@@ -104,24 +149,7 @@ const useComments = ({ repoName }: { repoName: string }) => {
           repoName: comment.repoName,
           title: comment.title,
         })),
-        stats: {
-          total: SAMPLE_COMMENTS_ALL.stats.total.map((stat) => ({
-            date: new Date(stat.date),
-            count: stat.count,
-          })),
-          open: SAMPLE_COMMENTS_ALL.stats.open.map((stat) => ({
-            date: new Date(stat.date),
-            count: stat.count,
-          })),
-          accepted: SAMPLE_COMMENTS_ALL.stats.accepted.map((stat) => ({
-            date: new Date(stat.date),
-            count: stat.count,
-          })),
-          rejected: SAMPLE_COMMENTS_ALL.stats.rejected.map((stat) => ({
-            date: new Date(stat.date),
-            count: stat.count,
-          })),
-        },
+        stats: fakeStats,
       };
       break;
     default:
