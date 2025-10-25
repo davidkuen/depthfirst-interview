@@ -9,15 +9,23 @@ type CommentSchema = {
   repoName: string;
   title: string;
   description: string;
-  diff_hunk: string;
+  diffHunk: string;
 };
 
 const useComment = ({ id }: { id: string }) => {
-  return useFakeGETApi<CommentSchema>(
-    SAMPLE_COMMENTS_ALL.comments.find(
-      (comment) => comment.id === id
-    ) as unknown as CommentSchema
+  const comment = SAMPLE_COMMENTS_ALL.comments.find(
+    (comment) => comment.id === id
   );
+
+  if (!comment) {
+    throw new Error(`Comment with id ${id} not found`);
+  }
+
+  return useFakeGETApi<CommentSchema>({
+    ...comment,
+    createdAt: new Date(comment.createdAt),
+    status: comment.status as "open" | "accepted" | "rejected",
+  });
 };
 
 export default useComment;

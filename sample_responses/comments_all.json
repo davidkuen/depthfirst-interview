@@ -6,7 +6,10 @@
       "prName": "DepthFirst/mono#15",
       "status": "open",
       "repoName": "DepthFirst/mono",
-      "title": "Missing authentication/authorization"
+      "title": "Missing authentication/authorization",
+      "description": "The API endpoint '/api/userdata' does not enforce a user authentication or authorization check, allowing unauthorized users to access sensitive information.",
+      "diffHunk": "@@ -1,6 +1,8 @@\n app.get('/api/userdata', (req, res) => {\n-  // TODO: Add authentication\n   const data = getUserData();\n   res.json(data);\n });\n",
+      "language": "typescript"
     },
     {
       "id": "2",
@@ -14,7 +17,10 @@
       "prName": "DepthFirst/service-auth#22",
       "status": "accepted",
       "repoName": "DepthFirst/service-auth",
-      "title": "Missing input validation"
+      "title": "Missing input validation",
+      "description": "The user registration endpoint saves submitted data to the database without verifying the input, allowing invalid or malicious data to be inserted and possibly executed.",
+      "diffHunk": "@@ -8,11 +8,12 @@\n-app.post('/register', (req, res) => {\n-  const { username, email } = req.body;\n-  db.insert({ username, email });\n-  res.send('Registered');\n-});\n+app.post('/register', (req, res) => {\n+  const { username, email } = req.body;\n+  // Missing input validation!\n+  db.insert({ username, email });\n+  res.send('Registered');\n+});\n",
+      "language": "typescript"
     },
     {
       "id": "3",
@@ -22,7 +28,10 @@
       "prName": "DepthFirst/mobile-ios#8",
       "status": "open",
       "repoName": "DepthFirst/mobile-ios",
-      "title": "Insecure data storage on device"
+      "title": "Insecure data storage on device",
+      "description": "Sensitive user credentials are being stored in plain text using UserDefaults, making it easy for attackers with access to the device to read them.",
+      "diffHunk": "@@ -23,7 +23,8 @@\n-func saveCredentials(username: String, password: String) {\n-    UserDefaults.standard.set(username, forKey: \"username\")\n-    UserDefaults.standard.set(password, forKey: \"password\")\n-}\n+func saveCredentials(username: String, password: String) {\n+    // Insecure: storing plaintext passwords in UserDefaults\n+    UserDefaults.standard.set(username, forKey: \"username\")\n+    UserDefaults.standard.set(password, forKey: \"password\")\n+}\n",
+      "language": "swift"
     },
     {
       "id": "4",
@@ -30,7 +39,10 @@
       "prName": "DepthFirst/mono#16",
       "status": "rejected",
       "repoName": "DepthFirst/mono",
-      "title": "Hardcoded credentials found in source"
+      "title": "Hardcoded credentials found in source",
+      "description": "An administrative username and password are hardcoded directly in the source code, exposing sensitive secrets to anyone with access to the codebase.",
+      "diffHunk": "@@ -2,7 +2,9 @@\n-const adminUser = 'admin';\n-const adminPass = 's3cr3t!';\n+const adminUser = 'admin';\n+const adminPass = 's3cr3t!'; // Hardcoded credential\n",
+      "language": "typescript"
     },
     {
       "id": "5",
@@ -38,7 +50,10 @@
       "prName": "DepthFirst/service-auth#23",
       "status": "accepted",
       "repoName": "DepthFirst/service-auth",
-      "title": "Unvalidated redirect vulnerability"
+      "title": "Unvalidated redirect vulnerability",
+      "description": "The OAuth callback handler redirects users to a URL specified by a query parameter without validating its value, enabling attackers to perform phishing attacks.",
+      "diffHunk": "@@ -4,8 +4,9 @@\n-app.get('/oauth/callback', (req, res) => {\n-  const redirect = req.query.redirect_uri;\n-  res.redirect(redirect);\n-});\n+app.get('/oauth/callback', (req, res) => {\n+  const redirect = req.query.redirect_uri;\n+  // No validation of redirect URI!\n+  res.redirect(redirect);\n+});\n",
+      "language": "typescript"
     },
     {
       "id": "6",
@@ -46,7 +61,10 @@
       "prName": "DepthFirst/mobile-ios#9",
       "status": "open",
       "repoName": "DepthFirst/mobile-ios",
-      "title": "Improper certificate validation"
+      "title": "Improper certificate validation",
+      "description": "The network client accepts all SSL certificates, including self-signed and invalid ones, leaving the app vulnerable to man-in-the-middle attacks.",
+      "diffHunk": "@@ -11,10 +11,14 @@\n-func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge,\n-    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {\n-    completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))\n-}\n+func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge,\n+    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {\n+    // Accepts any serverTrust without validation!\n+    completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))\n+}\n",
+      "language": "swift"
     },
     {
       "id": "7",
@@ -54,7 +72,10 @@
       "prName": "DepthFirst/mono#17",
       "status": "rejected",
       "repoName": "DepthFirst/mono",
-      "title": "Cross-site scripting (XSS) in comment field"
+      "title": "Cross-site scripting (XSS) in comment field",
+      "description": "User-supplied comments are rendered on the page without being sanitized, allowing injection and execution of arbitrary JavaScript in users' browsers.",
+      "diffHunk": "@@ -20,8 +20,9 @@\n-function renderComment(comment) {\n-  return `<div>${comment.text}</div>`;\n-}\n+function renderComment(comment) {\n+  // No sanitization: possible XSS\n+  return `<div>${comment.text}</div>`;\n+}\n",
+      "language": "typescript"
     },
     {
       "id": "8",
@@ -62,7 +83,10 @@
       "prName": "DepthFirst/mobile-ios#10",
       "status": "open",
       "repoName": "DepthFirst/mobile-ios",
-      "title": "Sensitive information logged to console"
+      "title": "Sensitive information logged to console",
+      "description": "The application logs sensitive tokens to the console, making them visible to anyone with access to console output or device logs.",
+      "diffHunk": "@@ -9,7 +9,8 @@\n-func loginUser(token: String) {\n-    print(\"User logged in with token: \\(token)\")\n-    // ...\n-}\n+func loginUser(token: String) {\n+    print(\"User logged in with token: \\(token)\") // Logging sensitive info\n+    // ...\n+}\n",
+      "language": "swift"
     },
     {
       "id": "9",
@@ -70,7 +94,10 @@
       "prName": "DepthFirst/service-auth#24",
       "status": "open",
       "repoName": "DepthFirst/service-auth",
-      "title": "Session fixation vulnerability"
+      "title": "Session fixation vulnerability",
+      "description": "A user's session ID is not refreshed after login, allowing attackers to set or reuse an existing session and gain unauthorized access.",
+      "diffHunk": "@@ -13,11 +13,13 @@\n-app.post('/login', (req, res) => {\n-  // ...authenticate user...\n-  req.session.user = user;\n-  res.send('Logged in');\n-});\n+app.post('/login', (req, res) => {\n+  // ...authenticate user...\n+  // Session ID not regenerated after login!\n+  req.session.user = user;\n+  res.send('Logged in');\n+});\n",
+      "language": "typescript"
     },
     {
       "id": "10",
@@ -78,7 +105,10 @@
       "prName": "DepthFirst/mono#18",
       "status": "rejected",
       "repoName": "DepthFirst/mono",
-      "title": "Unrestricted file upload"
+      "title": "Unrestricted file upload",
+      "description": "File upload functionality saves submitted files without validating type or content, permitting attackers to upload and execute malicious code.",
+      "diffHunk": "@@ -5,8 +5,9 @@\n-app.post('/upload', (req, res) => {\n-  const file = req.files.file;\n-  file.mv(`/uploads/${file.name}`);\n-  res.send('File uploaded');\n-});\n+app.post('/upload', (req, res) => {\n+  const file = req.files.file;\n+  // No validation of file type or path!\n+  file.mv(`/uploads/${file.name}`);\n+  res.send('File uploaded');\n+});\n",
+      "language": "typescript"
     },
     {
       "id": "11",
@@ -86,7 +116,10 @@
       "prName": "DepthFirst/service-auth#25",
       "status": "open",
       "repoName": "DepthFirst/service-auth",
-      "title": "Exposed admin endpoint"
+      "title": "Exposed admin endpoint",
+      "description": "An admin-only endpoint is available without any authentication or access control, allowing any user to perform privileged actions.",
+      "diffHunk": "@@ -3,7 +3,8 @@\n-app.post('/admin/deleteUser', (req, res) => {\n-  const { userId } = req.body;\n-  deleteUser(userId);\n-  res.send('User deleted');\n-});\n+app.post('/admin/deleteUser', (req, res) => {\n+  // No authentication or authorization check!\n+  const { userId } = req.body;\n+  deleteUser(userId);\n+  res.send('User deleted');\n+});\n",
+      "language": "typescript"
     },
     {
       "id": "12",
@@ -94,7 +127,10 @@
       "prName": "DepthFirst/mobile-ios#11",
       "status": "accepted",
       "repoName": "DepthFirst/mobile-ios",
-      "title": "Insecure random number generator"
+      "title": "Insecure random number generator",
+      "description": "The application uses arc4random() to generate security tokens, which is not cryptographically secure and may allow attackers to predict token values.",
+      "diffHunk": "@@ -7,7 +7,8 @@\n-func generateToken() -> String {\n-    let rand = arc4random()\n-    return String(rand)\n-}\n+func generateToken() -> String {\n+    // Insecure: uses arc4random() for token generation\n+    let rand = arc4random()\n+    return String(rand)\n+}\n",
+      "language": "swift"
     }
   ]
 }
