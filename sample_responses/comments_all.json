@@ -9,7 +9,13 @@
       "title": "Missing authentication/authorization",
       "description": "The API endpoint '/api/userdata' does not enforce a user authentication or authorization check, allowing unauthorized users to access sensitive information.",
       "diffHunk": "@@ -1,6 +1,8 @@\n app.get('/api/userdata', (req, res) => {\n-  // TODO: Add authentication\n   const data = getUserData();\n   res.json(data);\n });\n",
-      "language": "typescript"
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "dev_alex93",
+          "content": "Thanks for pointing this out. I'll add proper authentication and authorization checks to this endpoint in the next update."
+        }
+      ]
     },
     {
       "id": "2",
@@ -20,7 +26,13 @@
       "title": "Missing input validation",
       "description": "The user registration endpoint saves submitted data to the database without verifying the input, allowing invalid or malicious data to be inserted and possibly executed.",
       "diffHunk": "@@ -8,11 +8,12 @@\n-app.post('/register', (req, res) => {\n-  const { username, email } = req.body;\n-  db.insert({ username, email });\n-  res.send('Registered');\n-});\n+app.post('/register', (req, res) => {\n+  const { username, email } = req.body;\n+  // Missing input validation!\n+  db.insert({ username, email });\n+  res.send('Registered');\n+});\n",
-      "language": "typescript"
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "codeSquirrel02",
+          "content": "Good catch! I'll add validation for user input before any registration is processed."
+        }
+      ]
     },
     {
       "id": "3",
@@ -31,7 +43,13 @@
       "title": "Insecure data storage on device",
       "description": "Sensitive user credentials are being stored in plain text using UserDefaults, making it easy for attackers with access to the device to read them.",
       "diffHunk": "@@ -23,7 +23,8 @@\n-func saveCredentials(username: String, password: String) {\n-    UserDefaults.standard.set(username, forKey: \"username\")\n-    UserDefaults.standard.set(password, forKey: \"password\")\n-}\n+func saveCredentials(username: String, password: String) {\n+    // Insecure: storing plaintext passwords in UserDefaults\n+    UserDefaults.standard.set(username, forKey: \"username\")\n+    UserDefaults.standard.set(password, forKey: \"password\")\n+}\n",
-      "language": "swift"
+      "language": "swift",
+      "replies": [
+        {
+          "user": "swiftKiwi88",
+          "content": "You're right, UserDefaults is not secure for sensitive data. I'll switch to using the Keychain for storing credentials."
+        }
+      ]
     },
     {
       "id": "4",
@@ -42,7 +60,13 @@
       "title": "Hardcoded credentials found in source",
       "description": "An administrative username and password are hardcoded directly in the source code, exposing sensitive secrets to anyone with access to the codebase.",
       "diffHunk": "@@ -2,7 +2,9 @@\n-const adminUser = 'admin';\n-const adminPass = 's3cr3t!';\n+const adminUser = 'admin';\n+const adminPass = 's3cr3t!'; // Hardcoded credential\n",
-      "language": "typescript"
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "ruggedRonin",
+          "content": "Thanks for flagging this! I'll update the code to load these credentials securely from environment variables instead."
+        }
+      ]
     },
     {
       "id": "5",
@@ -53,7 +77,13 @@
       "title": "Unvalidated redirect vulnerability",
       "description": "The OAuth callback handler redirects users to a URL specified by a query parameter without validating its value, enabling attackers to perform phishing attacks.",
       "diffHunk": "@@ -4,8 +4,9 @@\n-app.get('/oauth/callback', (req, res) => {\n-  const redirect = req.query.redirect_uri;\n-  res.redirect(redirect);\n-});\n+app.get('/oauth/callback', (req, res) => {\n+  const redirect = req.query.redirect_uri;\n+  // No validation of redirect URI!\n+  res.redirect(redirect);\n+});\n",
-      "language": "typescript"
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "nodeBison",
+          "content": "Understood—I'll add validation to ensure only allowed redirect URIs are used in the callback."
+        }
+      ]
     },
     {
       "id": "6",
@@ -64,7 +94,13 @@
       "title": "Improper certificate validation",
       "description": "The network client accepts all SSL certificates, including self-signed and invalid ones, leaving the app vulnerable to man-in-the-middle attacks.",
       "diffHunk": "@@ -11,10 +11,14 @@\n-func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge,\n-    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {\n-    completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))\n-}\n+func urlSession(_ session: URLSession, didReceive challenge: URLAuthenticationChallenge,\n+    completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {\n+    // Accepts any serverTrust without validation!\n+    completionHandler(.useCredential, URLCredential(trust: challenge.protectionSpace.serverTrust!))\n+}\n",
-      "language": "swift"
+      "language": "swift",
+      "replies": [
+        {
+          "user": "tildeKat",
+          "content": "I'll work on validating SSL certificates properly so only trusted servers are accepted. Thanks for highlighting this risk."
+        }
+      ]
     },
     {
       "id": "7",
@@ -75,7 +111,13 @@
       "title": "Cross-site scripting (XSS) in comment field",
       "description": "User-supplied comments are rendered on the page without being sanitized, allowing injection and execution of arbitrary JavaScript in users' browsers.",
       "diffHunk": "@@ -20,8 +20,9 @@\n-function renderComment(comment) {\n-  return `<div>${comment.text}</div>`;\n-}\n+function renderComment(comment) {\n+  // No sanitization: possible XSS\n+  return `<div>${comment.text}</div>`;\n+}\n",
-      "language": "typescript"
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "jsEdgar",
+          "content": "Great catch! We'll sanitize any user input in the comment field to prevent XSS going forward."
+        }
+      ]
     },
     {
       "id": "8",
@@ -86,7 +128,13 @@
       "title": "Sensitive information logged to console",
       "description": "The application logs sensitive tokens to the console, making them visible to anyone with access to console output or device logs.",
       "diffHunk": "@@ -9,7 +9,8 @@\n-func loginUser(token: String) {\n-    print(\"User logged in with token: \\(token)\")\n-    // ...\n-}\n+func loginUser(token: String) {\n+    print(\"User logged in with token: \\(token)\") // Logging sensitive info\n+    // ...\n+}\n",
-      "language": "swift"
+      "language": "swift",
+      "replies": [
+        {
+          "user": "swiftDingo",
+          "content": "Thanks for identifying this! I'll remove sensitive information from logs in the next revision."
+        }
+      ]
     },
     {
       "id": "9",
@@ -97,7 +145,13 @@
       "title": "Session fixation vulnerability",
       "description": "A user's session ID is not refreshed after login, allowing attackers to set or reuse an existing session and gain unauthorized access.",
       "diffHunk": "@@ -13,11 +13,13 @@\n-app.post('/login', (req, res) => {\n-  // ...authenticate user...\n-  req.session.user = user;\n-  res.send('Logged in');\n-});\n+app.post('/login', (req, res) => {\n+  // ...authenticate user...\n+  // Session ID not regenerated after login!\n+  req.session.user = user;\n+  res.send('Logged in');\n+});\n",
-      "language": "typescript"
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "typeTemplar",
+          "content": "Thanks for the heads up. I'll update the login handler so that it regenerates the session ID after a successful authentication."
+        }
+      ]
     },
     {
       "id": "10",
@@ -108,7 +162,13 @@
       "title": "Unrestricted file upload",
       "description": "File upload functionality saves submitted files without validating type or content, permitting attackers to upload and execute malicious code.",
       "diffHunk": "@@ -5,8 +5,9 @@\n-app.post('/upload', (req, res) => {\n-  const file = req.files.file;\n-  file.mv(`/uploads/${file.name}`);\n-  res.send('File uploaded');\n-});\n+app.post('/upload', (req, res) => {\n+  const file = req.files.file;\n+  // No validation of file type or path!\n+  file.mv(`/uploads/${file.name}`);\n+  res.send('File uploaded');\n+});\n",
-      "language": "typescript"
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "securePronghorn",
+          "content": "I'll make sure to add file type and size validation for uploads, thanks for bringing attention to this vulnerability."
+        }
+      ]
     },
     {
       "id": "11",
@@ -119,7 +179,13 @@
       "title": "Exposed admin endpoint",
       "description": "An admin-only endpoint is available without any authentication or access control, allowing any user to perform privileged actions.",
       "diffHunk": "@@ -3,7 +3,8 @@\n-app.post('/admin/deleteUser', (req, res) => {\n-  const { userId } = req.body;\n-  deleteUser(userId);\n-  res.send('User deleted');\n-});\n+app.post('/admin/deleteUser', (req, res) => {\n+  // No authentication or authorization check!\n+  const { userId } = req.body;\n+  deleteUser(userId);\n+  res.send('User deleted');\n+});\n",
-      "language": "typescript"
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "adminAegis",
+          "content": "Oops, this was an oversight. I'll add authentication and proper authorization checks to the admin endpoint immediately."
+        }
+      ]
     },
     {
       "id": "12",
@@ -130,7 +196,13 @@
       "title": "Insecure random number generator",
       "description": "The application uses arc4random() to generate security tokens, which is not cryptographically secure and may allow attackers to predict token values.",
       "diffHunk": "@@ -7,7 +7,8 @@\n-func generateToken() -> String {\n-    let rand = arc4random()\n-    return String(rand)\n-}\n+func generateToken() -> String {\n+    // Insecure: uses arc4random() for token generation\n+    let rand = arc4random()\n+    return String(rand)\n+}\n",
-      "language": "swift"
+      "language": "swift",
+      "replies": [
+        {
+          "user": "iosEider",
+          "content": "Appreciate the feedback. I'll migrate token generation to use SecRandomCopyBytes for improved security."
+        }
+      ]
     }
   ]
 }

@@ -56,18 +56,34 @@ const IssueDrawer = ({ id }: { id: string }) => {
             </div>
             <div className="flex flex-col gap-2 border-t border-foreground/10 pt-4">
               <div className="text-right">
-                <a
-                  href="#"
-                  target="_blank"
-                  className="text-sm text-white bg-foreground/10 px-1 font-mono hover:bg-foreground/20 transition-colors duration-200"
-                >
-                  View in GitHub →
-                </a>
+                <div className="flex gap-2 items-center justify-between">
+                  <div className="text-sm text-foreground/50 font-mono">
+                    Issue raised by Security Bot 🤖
+                  </div>
+                  <a
+                    href="#"
+                    target="_blank"
+                    className="text-sm text-white bg-foreground/10 px-1 font-mono hover:bg-foreground/20 transition-colors duration-200"
+                  >
+                    View in GitHub →
+                  </a>
+                </div>
               </div>
               <DiffHunkViewer hunk={commentResponse.data.diffHunk} />
               <p className="text-lg text-foreground">
                 {commentResponse.data.description}
               </p>
+            </div>
+            <div className="flex flex-col gap-2 border-t border-foreground/10 pt-4 pl-12">
+              {/* <h3 className="text-lg font-bold font-mono">Replies</h3> */}
+              {commentResponse.data.replies.map((reply, i) => (
+                <div key={`reply-${i}`} className="flex flex-col gap-2">
+                  <div className="text-sm text-foreground/50 font-mono">
+                    Reply by {reply.user}
+                  </div>
+                  <p>{reply.content}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}

@@ -10,6 +10,10 @@ type CommentSchema = {
   title: string;
   description: string;
   diffHunk: string;
+  replies: {
+    user: string;
+    content: string;
+  }[];
 };
 
 const useComment = ({ id }: { id: string }) => {

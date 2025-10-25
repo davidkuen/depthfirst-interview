@@ -138,29 +138,50 @@ const useComments = ({ repoName }: { repoName: string }) => {
     [repoName]
   );
 
+  const allComments = SAMPLE_COMMENTS_ALL.comments.map((comment) => ({
+    id: comment.id,
+    createdAt: new Date(comment.createdAt),
+    prName: comment.prName,
+    status: comment.status as "open" | "accepted" | "rejected",
+    repoName: comment.repoName,
+    title: comment.title,
+  }));
+
   switch (repoName) {
     case "":
       response = {
-        comments: SAMPLE_COMMENTS_ALL.comments.map((comment) => ({
-          id: comment.id,
-          createdAt: new Date(comment.createdAt),
-          prName: comment.prName,
-          status: comment.status as "open" | "accepted" | "rejected",
-          repoName: comment.repoName,
-          title: comment.title,
-        })),
+        comments: allComments,
+        stats: fakeStats,
+      };
+      break;
+    case "DepthFirst/mono":
+      response = {
+        comments: allComments.filter(
+          (comment) => comment.repoName === "DepthFirst/mono"
+        ),
+        stats: fakeStats,
+      };
+      break;
+    case "DepthFirst/service-auth":
+      response = {
+        comments: allComments.filter(
+          (comment) => comment.repoName === "DepthFirst/service-auth"
+        ),
+        stats: fakeStats,
+      };
+      break;
+    case "DepthFirst/mobile-ios":
+      response = {
+        comments: allComments.filter(
+          (comment) => comment.repoName === "DepthFirst/mobile-ios"
+        ),
         stats: fakeStats,
       };
       break;
     default:
       response = {
-        comments: [],
-        stats: {
-          total: [],
-          open: [],
-          accepted: [],
-          rejected: [],
-        },
+        comments: allComments,
+        stats: fakeStats,
       };
       break;
   }
