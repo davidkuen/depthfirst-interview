@@ -203,6 +203,91 @@
           "content": "Appreciate the feedback. I'll migrate token generation to use SecRandomCopyBytes for improved security."
         }
       ]
+    },
+    {
+      "id": "13",
+      "createdAt": "2025-05-29T14:05:00.000Z",
+      "prName": "DepthFirst/mono#19",
+      "status": "open",
+      "repoName": "DepthFirst/mono",
+      "title": "Hardcoded API keys in source code",
+      "description": "API keys are hardcoded directly in the source code, making it easy for attackers to extract and misuse them if the codebase is leaked.",
+      "diffHunk": "@@ -2,7 +2,8 @@\n-const API_KEY = \"sk_test_ABC123SECRET\";\n+const API_KEY = \"sk_test_ABC123SECRET\"; // Hardcoded sensitive key\n",
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "codePanda",
+          "content": "Good catch, I'll move any secrets to environment variables to keep them out of the codebase."
+        }
+      ]
+    },
+    {
+      "id": "14",
+      "createdAt": "2025-05-29T10:45:00.000Z",
+      "prName": "DepthFirst/service-auth#26",
+      "status": "open",
+      "repoName": "DepthFirst/service-auth",
+      "title": "CSRF protection not implemented on logout route",
+      "description": "The logout endpoint is missing CSRF protection, allowing attackers to force users to log out via malicious requests.",
+      "diffHunk": "@@ -7,8 +7,9 @@\n-app.post('/logout', (req, res) => {\n-  req.session.destroy();\n-  res.send('Logged out');\n-});\n+app.post('/logout', (req, res) => {\n+  // No CSRF protection here!\n+  req.session.destroy();\n+  res.send('Logged out');\n+});\n",
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "shieldRow",
+          "content": "Thanks for pointing this out. I'll make sure all relevant endpoints are protected with CSRF tokens."
+        }
+      ]
+    },
+    {
+      "id": "15",
+      "createdAt": "2025-05-28T22:18:00.000Z",
+      "prName": "DepthFirst/mobile-ios#12",
+      "status": "rejected",
+      "repoName": "DepthFirst/mobile-ios",
+      "title": "Disable SSL validation during debugging",
+      "description": "A debug build disables SSL certificate validation, potentially exposing the app to man-in-the-middle attacks if not properly managed.",
+      "diffHunk": "@@ -15,9 +15,10 @@\n-#if DEBUG\n-URLSession.shared.delegate = DebugURLSessionDelegate() // Disables SSL validation\n-#endif\n+#if DEBUG\n+URLSession.shared.delegate = DebugURLSessionDelegate() // WARNING: disables SSL validation\n+#endif\n",
+      "language": "swift",
+      "replies": [
+        {
+          "user": "objectivePine",
+          "content": "I'll review our debug builds to ensure SSL validation is never disabled outside of controlled environments."
+        }
+      ]
+    },
+    {
+      "id": "16",
+      "createdAt": "2025-05-28T14:28:00.000Z",
+      "prName": "DepthFirst/mono#20",
+      "status": "open",
+      "repoName": "DepthFirst/mono",
+      "title": "No rate limiting on authentication endpoints",
+      "description": "Authentication-related endpoints lack rate limiting, allowing attackers to brute-force credentials without restriction.",
+      "diffHunk": "@@ -2,8 +2,9 @@\n-app.post('/auth/login', loginHandler);\n+app.post('/auth/login', loginHandler); // No rate limiting applied\n",
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "loginJaguar",
+          "content": "I'll add rate limiting middleware to authentication endpoints to mitigate brute-force attacks."
+        }
+      ]
+    },
+    {
+      "id": "17",
+      "createdAt": "2025-05-28T09:10:00.000Z",
+      "prName": "DepthFirst/service-auth#27",
+      "status": "accepted",
+      "repoName": "DepthFirst/service-auth",
+      "title": "Password reset tokens never expire",
+      "description": "Password reset tokens issued by the server remain valid indefinitely, enabling attackers to use stolen tokens at any time.",
+      "diffHunk": "@@ -12,7 +12,8 @@\n-function issueResetToken(user) {\n-  const token = generateResetToken();\n-  user.resetToken = token\n-  // Token never expires\n-}\n+function issueResetToken(user) {\n+  const token = generateResetToken();\n+  user.resetToken = token\n+  // WARNING: reset token never expires\n+}\n",
+      "language": "typescript",
+      "replies": [
+        {
+          "user": "resetFox",
+          "content": "I'll ensure we add an expiration to reset tokens and clear them after they're used."
+        }
+      ]
     }
   ]
 }
