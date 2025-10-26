@@ -1,6 +1,6 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Running the server
 
 First, run the development server:
 
@@ -16,21 +16,20 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech design
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Although this is a NextJS app, there's no backend here, and all the API requests are simulated with the `useFakeGETApi` helper hook. Requests artificially take 1 second. All the data is derived from `sample_responses/comments_all.json`.
 
-## Learn More
+For the sake of time, there's some functionality that doesn't actually work, like filtering by date -- while the bar graph days appear to be clickable, they don't actually do anything. Other missing things that I would implement in a real environment: pagination, empty states, error handling.
 
-To learn more about Next.js, take a look at the following resources:
+One UX bug I already noticed is that if you filter on a specific repository, then open an issue detail view, then the underlying page goes back to "All". (That's because we're relying on URL for both filter state and navigating into issues.)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Testing
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+I'm choosing not to include tests in this submission because there isn't that much real logic (so I don't think the tests would be super interesting). I like to lean on snapshot tests (including visual screenshot snapshots) for making sure that rendering happens correctly. I'd write traditional unit tests for more complex UI components (perhaps, say, the `DiffHunkViewer`).
 
-## Deploy on Vercel
+## AI usage
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+I used AI to generate the example issues and responses.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+I also used AI to assist in writing code by writing this in Cursor, although I didn't use "agent mode", and relied on it to complete function bodies rather than write entire components for me.
